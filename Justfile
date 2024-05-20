@@ -9,3 +9,6 @@ dev:
 
 build:
   go build -o bot main.go
+
+tidy:
+  go mod tidy

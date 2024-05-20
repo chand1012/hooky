@@ -10,7 +10,7 @@ Here is an example configuration for a simple webhook command:
   "description": "An example command",
   "method": "POST",
   "url": "https://example.com/webhook",
-  "body": [{ // can also be "form" for form data and "query" for query parameters
+  "body": [{ // can also be "query" for query parameters
     "name": "content",
     "description": "The content of the message",
     "type": "string",

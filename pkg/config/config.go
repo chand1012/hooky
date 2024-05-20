@@ -36,9 +36,21 @@ func (p *Param) ToApplicationCommandOption() (*discordgo.ApplicationCommandOptio
 	}, nil
 }
 
-type Params = []Param
+type Params []Param
 
-type Headers = map[string]string
+func (p Params) ToApplicationCommandOptions() ([]*discordgo.ApplicationCommandOption, error) {
+	options := make([]*discordgo.ApplicationCommandOption, 0)
+	for _, param := range p {
+		opt, err := param.ToApplicationCommandOption()
+		if err != nil {
+			return nil, err
+		}
+		options = append(options, opt)
+	}
+	return options, nil
+}
+
+type Headers map[string]string
 
 type Command struct {
 	Name        string  `json:"name"`
@@ -52,28 +64,21 @@ type Command struct {
 }
 
 func (c *Command) ToApplicationCommand() (*discordgo.ApplicationCommand, error) {
-	options := make([]*discordgo.ApplicationCommandOption, 0)
-	for _, p := range c.Body {
-		opt, err := p.ToApplicationCommandOption()
-		if err != nil {
-			return nil, err
-		}
-		options = append(options, opt)
+	options, err := c.Body.ToApplicationCommandOptions()
+	if err != nil {
+		return nil, err
 	}
-	for _, p := range c.Query {
-		opt, err := p.ToApplicationCommandOption()
-		if err != nil {
-			return nil, err
-		}
-		options = append(options, opt)
+	queryOptions, err := c.Query.ToApplicationCommandOptions()
+	if err != nil {
+		return nil, err
 	}
-	for _, p := range c.Form {
-		opt, err := p.ToApplicationCommandOption()
-		if err != nil {
-			return nil, err
-		}
-		options = append(options, opt)
+	formOptions, err := c.Form.ToApplicationCommandOptions()
+	if err != nil {
+		return nil, err
 	}
+	// if no errors, append query and form options to the body options
+	options = append(options, queryOptions...)
+	options = append(options, formOptions...)
 	return &discordgo.ApplicationCommand{
 		Name:        c.Name,
 		Description: c.Description,
@@ -81,9 +86,33 @@ func (c *Command) ToApplicationCommand() (*discordgo.ApplicationCommand, error) 
 	}, nil
 }
 
+type Commands []Command
+
+func (c Commands) ToApplicationCommands() ([]*discordgo.ApplicationCommand, error) {
+	commands := make([]*discordgo.ApplicationCommand, 0)
+	for _, command := range c {
+		cmd, err := command.ToApplicationCommand()
+		if err != nil {
+			return nil, err
+		}
+		commands = append(commands, cmd)
+	}
+	return commands, nil
+}
+
+func (c Commands) FindByName(name string) *Command {
+	for _, command := range c {
+		if command.Name == name {
+			return &command
+		}
+	}
+	return nil
+}
+
 // LoadConfigs loads all .json files in the given directory and returns them as a list of Command structs.
-func LoadConfigs(dir string) ([]Command, error) {
-	var commands []Command
+func LoadConfigs(dir string) (Commands, error) {
+	var commands Commands
+	names := make(map[string]Command)
 	files, err := filepath.Glob(filepath.Join(dir, "*.json"))
 	if err != nil {
 		return nil, err
@@ -98,7 +127,11 @@ func LoadConfigs(dir string) ([]Command, error) {
 		if err != nil {
 			return nil, err
 		}
+		if _, ok := names[command.Name]; ok {
+			return nil, fmt.Errorf("duplicate command name: %s", command.Name)
+		}
 		commands = append(commands, command)
+		names[command.Name] = command
 	}
 	return commands, nil
 }
