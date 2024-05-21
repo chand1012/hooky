@@ -16,6 +16,7 @@ Checked means it's implemented, unchecked means it's planned.
 
 - [x] Configurable commands
 - [x] JSON parsing and requests
+- [ ] JSON list parsing
 - [x] Request templates
 - [x] Response templates
 - [x] Query params

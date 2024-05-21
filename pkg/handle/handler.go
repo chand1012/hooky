@@ -13,6 +13,13 @@ import (
 )
 
 func Command(commands config.Commands, s *discordgo.Session, i *discordgo.InteractionCreate) {
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+	})
+	if err != nil {
+		log.Errorf("could not defer interaction: %s", err)
+		return
+	}
 	data := i.ApplicationCommandData()
 	opts := ParseOptions(data.Options)
 	command := commands.FindByName(data.Name)
@@ -44,15 +51,13 @@ func Command(commands config.Commands, s *discordgo.Session, i *discordgo.Intera
 			}
 		}
 	}
-	var bodyBuffer *bytes.Buffer
+	bodyBuffer := new(bytes.Buffer)
 	if len(body) > 0 && command.BodyTemplate == "" {
-		bodyBuffer = new(bytes.Buffer)
 		if err := json.NewEncoder(bodyBuffer).Encode(body); err != nil {
 			log.Errorf("could not encode body: %s", err)
 			return
 		}
 	} else if len(body) > 0 {
-		bodyBuffer = new(bytes.Buffer)
 		tmpl, err := template.New("json").Parse(command.BodyTemplate)
 		if err != nil {
 			log.Errorf("could not parse body template: %s", err)
@@ -151,11 +156,8 @@ func Command(commands config.Commands, s *discordgo.Session, i *discordgo.Intera
 		}
 	}
 
-	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{
-			Content: respString,
-		},
+	_, err = s.FollowupMessageCreate(i.Interaction, false, &discordgo.WebhookParams{
+		Content: respString,
 	})
 
 	if err != nil {
