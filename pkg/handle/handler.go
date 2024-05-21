@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"text/template"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/chand1012/hooky/pkg/config"
@@ -44,13 +45,26 @@ func Command(commands config.Commands, s *discordgo.Session, i *discordgo.Intera
 	// construct the body
 	body := make(map[string]interface{})
 	for _, param := range command.Body {
-		body[param.Name] = opts[param.Name].Value
+		if _, ok := opts[param.Name]; ok {
+			body[param.Name] = opts[param.Name].Value
+		}
 	}
 	var bodyBuffer *bytes.Buffer
-	if len(body) > 0 {
+	if len(body) > 0 && command.BodyTemplate == "" {
 		bodyBuffer = new(bytes.Buffer)
 		if err := json.NewEncoder(bodyBuffer).Encode(body); err != nil {
 			log.Errorf("could not encode body: %s", err)
+			return
+		}
+	} else if len(body) > 0 {
+		bodyBuffer = new(bytes.Buffer)
+		tmpl, err := template.New("json").Parse(command.BodyTemplate)
+		if err != nil {
+			log.Errorf("could not parse body template: %s", err)
+			return
+		}
+		if err := tmpl.Execute(bodyBuffer, body); err != nil {
+			log.Errorf("could not execute body template: %s", err)
 			return
 		}
 	}
@@ -95,13 +109,40 @@ func Command(commands config.Commands, s *discordgo.Session, i *discordgo.Intera
 		return
 	}
 
+	if command.ParseJSON != nil {
+		respData, err := command.ParseJSON.Parse(respBody)
+		if err != nil {
+			log.Errorf("could not parse response: %s", err)
+			return
+		}
+		respJSON, err := json.Marshal(respData)
+		if err != nil {
+			log.Errorf("could not marshal response: %s", err)
+			return
+		}
+		respBody = respJSON
+		if command.ResponseTemplate != "" {
+			tmpl, err := template.New("json").Parse(command.ResponseTemplate)
+			if err != nil {
+				log.Errorf("could not parse response template: %s", err)
+				return
+			}
+			respBuffer := new(bytes.Buffer)
+			if err := tmpl.Execute(respBuffer, respData); err != nil {
+				log.Errorf("could not execute response template: %s", err)
+				return
+			}
+			respBody = respBuffer.Bytes()
+		}
+	}
+
 	// first, get the response body as a string
 	respString := string(respBody)
 	// attempt to parse the response body as JSON
 	// if it fails, just send the response body as a string
 	var respJSON map[string]interface{}
 	if err := json.Unmarshal(respBody, &respJSON); err != nil {
-		log.Warnf("could not parse response body as JSON: %s", err)
+		log.Debugf("could not parse response body as JSON: %s", err)
 		respJSON = nil
 	}
 
@@ -109,16 +150,16 @@ func Command(commands config.Commands, s *discordgo.Session, i *discordgo.Intera
 		// if the response is not nil, send the response as pretty JSON
 		prettyResp, err := json.MarshalIndent(respJSON, "", "  ")
 		if err == nil {
-			respString = string(prettyResp)
+			respString = "```json\n" + string(prettyResp) + "\n```"
 		} else {
-			log.Warnf("could not pretty print response: %s", err)
+			log.Debugf("could not pretty print response: %s", err)
 		}
 	}
 
 	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-			Content: "```json\n" + respString + "\n```",
+			Content: respString,
 		},
 	})
 

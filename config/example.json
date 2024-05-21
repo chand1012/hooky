@@ -1,0 +1,25 @@
+{
+  "name": "example",
+  "description": "This is a test command",
+  "method": "POST",
+  "url": "https://httpbin.org/anything",
+  "body": [
+    {
+      "name": "content",
+      "description": "This is a test command",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "bees",
+      "description": "save the bees",
+      "required": false,
+      "type": "boolean"
+    }
+  ],
+  "body_template": "{ \"content\": \"{{ .content }}\", \"dummy\": \"am dummy\" }",
+  "parse_json": {
+    "response_content": ".json.content"
+  },
+  "response_template": "{{.response_content}}"
+}

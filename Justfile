@@ -12,3 +12,7 @@ build:
 
 tidy:
   go mod tidy
+
+clean:
+  rm -f bot
+  go clean -cache -testcache
