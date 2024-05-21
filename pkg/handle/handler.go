@@ -47,6 +47,11 @@ func Command(commands config.Commands, s *discordgo.Session, i *discordgo.Intera
 	for _, param := range command.Body {
 		if _, ok := opts[param.Name]; ok {
 			body[param.Name] = opts[param.Name].Value
+		} else {
+			// check if the param has a default value
+			if param.Default != nil {
+				body[param.Name] = param.Default
+			}
 		}
 	}
 	var bodyBuffer *bytes.Buffer

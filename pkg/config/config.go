@@ -12,10 +12,12 @@ import (
 )
 
 type Param struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Type        string `json:"type"`
-	Required    bool   `json:"required,omitempty"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Type        string   `json:"type"`
+	Required    bool     `json:"required,omitempty"`
+	Options     []string `json:"options,omitempty"`
+	Default     any      `json:"default,omitempty"`
 }
 
 func (p *Param) ToApplicationCommandOption() (*discordgo.ApplicationCommandOption, error) {
@@ -30,11 +32,24 @@ func (p *Param) ToApplicationCommandOption() (*discordgo.ApplicationCommandOptio
 	default:
 		return nil, fmt.Errorf("unknown command option type: %s", p.Type)
 	}
+
+	var choices []*discordgo.ApplicationCommandOptionChoice
+	if len(p.Options) > 0 {
+		choices = make([]*discordgo.ApplicationCommandOptionChoice, 0)
+		for _, opt := range p.Options {
+			choices = append(choices, &discordgo.ApplicationCommandOptionChoice{
+				Name:  opt,
+				Value: opt,
+			})
+		}
+	}
+
 	return &discordgo.ApplicationCommandOption{
 		Type:        t,
 		Name:        p.Name,
 		Description: p.Description,
 		Required:    p.Required,
+		Choices:     choices,
 	}, nil
 }
 

@@ -60,7 +60,7 @@ docker run -e BOT_TOKEN=<bot-token> -e APP_ID=<app-id> -e GUILD_ID=<guild-id> -v
 
 For the Guild ID, bot token, and app ID, 
 
-Hooky uses a configuration file in JSON format to define commands and their corresponding REST requests. The configuration file is loaded from the directory specified by the `--config-dir` flag.
+Hooky uses a configuration file in JSON format to define commands and their corresponding REST requests. The configuration file is loaded from the directory specified by the `--config-dir` flag. All files in the directory are loaded and parsed as command configurations, name doesn't matter. One file is a single command configuration.
 
 ### Command Configuration
 
@@ -86,48 +86,49 @@ A `Param` object specifies a single parameter for a command. A `Param` object ha
 * `description`: A string that provides a brief description of the parameter.
 * `type`: A string that specifies the type of the parameter (e.g. `string`, `integer`, `boolean`, etc.).
 * `required`: A boolean that specifies whether the parameter is required.
+* `default`: A value that specifies the default value of the parameter.
+* `options`: An array of values that specifies the valid options for the parameter.
 
 ### Example Configuration
 
 Here is an example configuration file that defines a single command:
 ```json
-[
-  {
-    "name": "example",
-    "description": "An example command",
-    "method": "POST",
-    "url": "https://httpbin.org/anything",
-    "body": [
-      {
-        "name": "content",
-        "description": "The content of the message",
-        "type": "string",
-        "required": true
-      },
-      {
-        "name": "bees",
-        "description": "Whether to include bees in the request",
-        "type": "boolean"
-      }
-    ],
-    "body_template": "{ \"content\": \"{{.content}}\", \"bees\": {{.bees}} }",
-    "query": [
-      {
-        "name": "api_key",
-        "description": "The API key to use",
-        "type": "string",
-        "required": true
-      }
-    ],
-    "headers": {
-      "Content-Type": "application/json"
+{
+  "name": "example",
+  "description": "This is a test command",
+  "method": "POST",
+  "url": "https://httpbin.org/anything",
+  "body": [
+    {
+      "name": "content",
+      "description": "This is a test command",
+      "type": "string",
+      "required": true
     },
-    "parse_json": {
-      "response_content": ".json.content",
-      "bees": ".json.bees"
+    {
+      "name": "bees",
+      "description": "save the bees",
+      "required": false,
+      "type": "boolean",
+      "default": false
     },
-    "response_template": "{{.response_content}}\n\nBees? {{.bees}}"
-  }
-]
+    {
+      "name": "select",
+      "description": "This is a selection",
+      "required": false,
+      "type": "string",
+      "options": ["thing 1", "thing 2"],
+      "default": "thing 2"
+    }
+  ],
+  "body_template": "{ \"content\": \"{{ .content }}\", \"dummy\": \"am dummy\", \"bees\": \"{{ .bees }}\", \"select\": \"{{.select}}\" }",
+  "parse_json": {
+    "response_content": ".json.content",
+    "bees": ".json.bees",
+    "select": ".json.select"
+  },
+  "response_template": "{{.response_content}}\n\nBees? {{.bees}}\n\nSelection: {{.select}}"
+}
+
 ```
 This configuration defines a command called `example` that makes a `POST` request to `https://httpbin.org/anything`. The request body includes two parameters: `content` and `bees`. The `content` parameter is required and has a type of `string`, while the `bees` parameter is optional and has a type of `boolean`. The request also includes a query parameter `api_key` that is required. The response is parsed as JSON and the `response_template` is used to generate the final response.

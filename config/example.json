@@ -14,13 +14,23 @@
       "name": "bees",
       "description": "save the bees",
       "required": false,
-      "type": "boolean"
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "select",
+      "description": "This is a selection",
+      "required": false,
+      "type": "string",
+      "options": ["thing 1", "thing 2"],
+      "default": "thing 2"
     }
   ],
-  "body_template": "{ \"content\": \"{{ .content }}\", \"dummy\": \"am dummy\", \"bees\": \"{{ .bees }}\" }",
+  "body_template": "{ \"content\": \"{{ .content }}\", \"dummy\": \"am dummy\", \"bees\": \"{{ .bees }}\", \"select\": \"{{.select}}\" }",
   "parse_json": {
     "response_content": ".json.content",
-    "bees": ".json.bees"
+    "bees": ".json.bees",
+    "select": ".json.select"
   },
-  "response_template": "{{.response_content}}\n\nBees? {{.bees}}"
+  "response_template": "{{.response_content}}\n\nBees? {{.bees}}\n\nSelection: {{.select}}"
 }
