@@ -12,16 +12,6 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-type OptionMap = map[string]*discordgo.ApplicationCommandInteractionDataOption
-
-func ParseOptions(options []*discordgo.ApplicationCommandInteractionDataOption) (om OptionMap) {
-	om = make(OptionMap)
-	for _, opt := range options {
-		om[opt.Name] = opt
-	}
-	return
-}
-
 func Command(commands config.Commands, s *discordgo.Session, i *discordgo.InteractionCreate) {
 	data := i.ApplicationCommandData()
 	opts := ParseOptions(data.Options)

@@ -10,6 +10,20 @@ This means that in theory, if you just write a REST API, you can use Hooky to in
 
 For example, something I use a lot is self-hosted no-code tools like [n8n](https://n8n.io) and [Dify](https://github.com/langgenius/dify). Both offer no-code options to interact with, however I wanted a single interface to interact with them, as well as any other REST interface. Hooky allows me to do that.
 
+## Features
+
+Checked means it's implemented, unchecked means it's planned.
+
+- [x] Configurable commands
+- [x] JSON parsing and requests
+- [x] Request templates
+- [x] Response templates
+- [x] Query params
+- [ ] Form data
+- [ ] File uploads
+- [ ] Rate limiting
+- [ ] URL parameters
+
 ## Setup
 
 ### Prerequisites
