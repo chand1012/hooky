@@ -17,9 +17,10 @@
       "type": "boolean"
     }
   ],
-  "body_template": "{ \"content\": \"{{ .content }}\", \"dummy\": \"am dummy\" }",
+  "body_template": "{ \"content\": \"{{ .content }}\", \"dummy\": \"am dummy\", \"bees\": \"{{ .bees }}\" }",
   "parse_json": {
-    "response_content": ".json.content"
+    "response_content": ".json.content",
+    "bees": ".json.bees"
   },
-  "response_template": "{{.response_content}}"
+  "response_template": "{{.response_content}}\n\nBees? {{.bees}}"
 }

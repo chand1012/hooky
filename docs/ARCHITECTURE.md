@@ -7,22 +7,30 @@ Here is an example configuration for a simple webhook command:
 ```json
 {
   "name": "example",
-  "description": "An example command",
+  "description": "This is a test command",
   "method": "POST",
-  "url": "https://example.com/webhook",
-  "body": [{ // can also be "query" for query parameters
-    "name": "content",
-    "description": "The content of the message",
-    "type": "string",
-    "required": true // optional. Default is false
-  }],
-  "headers": {
-    "Authorization": "Bearer example-token",
-    "Content-Type": "application/json"
-  }
-  // TODO: Add support for response handling
-  // TODO: Add support for file uploads
-  // TODO: Add support for multi-level complex JSON objects
+  "url": "https://httpbin.org/anything",
+  "body": [
+    {
+      "name": "content",
+      "description": "This is a test command",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "bees",
+      "description": "save the bees",
+      "required": false,
+      "type": "boolean"
+    }
+  ],
+  "body_template": "{ \"content\": \"{{ .content }}\", \"dummy\": \"am dummy\", \"bees\": \"{{ .bees }}\" }",
+  "parse_json": {
+    "response_content": ".json.content",
+    "bees": ".json.bees"
+  },
+  "response_template": "{{.response_content}}\n\nBees? {{.bees}}"
 }
+
 ```
 The name of the file within the config directory does not matter, they will all be loaded.

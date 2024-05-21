@@ -22,7 +22,29 @@ var (
 func main() {
 	flag.Parse()
 	if *App == "" {
-		log.Fatal("application id is not set")
+		app_id := os.Getenv("APP_ID")
+		if app_id != "" {
+			App = &app_id
+		} else {
+			log.Fatal("application id is not set. Please provide it with -app or environment variable APP_ID")
+		}
+	}
+
+	// do the same for token. Guild is optional
+	if *Token == "" {
+		token := os.Getenv("BOT_TOKEN")
+		if token != "" {
+			Token = &token
+		} else {
+			log.Fatal("bot token is not set. Please provide it with -token or environment variable BOT_TOKEN")
+		}
+	}
+
+	if *Guild == "" {
+		guild := os.Getenv("GUILD_ID")
+		if guild != "" {
+			Guild = &guild
+		}
 	}
 
 	cmds, err := config.LoadConfigs(*ConfigDir)
