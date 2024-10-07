@@ -8,7 +8,7 @@ I make a lot of projects. There's usually one thing those projects all have in c
 
 This means that in theory, if you just write a REST API, you can use Hooky to interact with it or even turn it into its own standalone Discord bot.
 
-For example, something I use a lot is self-hosted no-code tools like [n8n](https://n8n.io) and [Dify](https://github.com/langgenius/dify). Both offer no-code options to interact with, however I wanted a single interface to interact with them, as well as any other REST interface. Hooky allows me to do that.
+For example, something I use a lot of self-hosted no-code tools like [n8n](https://n8n.io) and [Dify](https://github.com/langgenius/dify). Both offer no-code options to interact with, however I wanted a single interface to interact with them, as well as any other REST interface. Hooky allows me to do that.
 
 ## Features
 
