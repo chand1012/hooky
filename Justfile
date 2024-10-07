@@ -18,11 +18,11 @@ tidy:
   go mod tidy
 
 clean:
-  rm -f bot
+  rm -f hooky
   go clean -cache -testcache
 
 build-docker:
-  docker build -t chand1012/hooky .
+  docker build -t ghcr.io/chand1012/hooky .
 
 run-docker:
-  docker run -e BOT_TOKEN={{BOT_TOKEN}} -e APP_ID={{APP_ID}} -e GUILD_ID={{GUILD_ID}} -v $(pwd)/config:/app/config chand1012/hooky
+  docker run -e BOT_TOKEN={{BOT_TOKEN}} -e APP_ID={{APP_ID}} -e GUILD_ID={{GUILD_ID}} -v $(pwd)/config:/app/config ghcr.io/chand1012/hooky

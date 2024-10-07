@@ -29,3 +29,4 @@ go.work
 .env
 bot
 config/*
+hooky
