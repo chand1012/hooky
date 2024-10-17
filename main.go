@@ -6,9 +6,9 @@ import (
 	"os/signal"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/chand1012/hooky/pkg/config"
 	"github.com/charmbracelet/log"
 
+	"github.com/chand1012/hooky/pkg/config"
 	"github.com/chand1012/hooky/pkg/handle"
 )
 

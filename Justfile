@@ -13,7 +13,6 @@ build:
 start: build
   ./hooky
 
-
 tidy:
   go mod tidy
 
